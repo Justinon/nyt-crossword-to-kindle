@@ -1,0 +1,13 @@
+set imap_user = "$CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX@$CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN"
+set imap_pass = "$CROSSWORD_SENDER_EMAIL_APP_PASSWORD"
+set smtp_url = "smtp://$CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX@$CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN@smtp.$CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN:587/"
+set smtp_pass = "$CROSSWORD_SENDER_EMAIL_APP_PASSWORD"
+set from = "$CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX@$CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN"
+set realname = "Crossword Sender"
+set folder = "imaps://imap.$CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN:993"
+set spoolfile = "+INBOX"
+set header_cache = ~/.mutt/cache/headers
+set message_cachedir = ~/.mutt/cache/bodies
+set certificate_file = ~/.mutt/certificates
+set move = no
+set smtp_authenticators = 'gssapi:login'

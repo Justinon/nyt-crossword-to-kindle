@@ -1,0 +1,12 @@
+name: crossword-to-scribe
+
+services:
+  sender:
+    container_name: crossword-sender
+    image: alpine-custom:latest
+    env_file:
+      - .env
+    volumes:
+      - ${DOWNLOADS_SYSTEM_PATH}:/crosswords/downloads
+      - ${COOKIE_FILE}:/crosswords/cookies.nyt.txt
+    command: "${CROSSWORD_COMMAND_LINE_ARGUMENTS}"
