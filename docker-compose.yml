@@ -1,9 +1,11 @@
-name: crossword-to-scribe
+name: nyt-crossword-to-kindle
 
 services:
   sender:
     container_name: crossword-sender
-    image: alpine-custom:latest
+    image: nyt-crossword-to-kindle:latest
+    build:
+      context: .
     env_file:
       - .env
     volumes:
