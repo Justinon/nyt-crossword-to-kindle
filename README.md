@@ -21,9 +21,9 @@ LINK TUTORIAL HERE
 
 Follow these instructions in order to get to solving!
 
-### 1. Get Things Set Up
+### Get Things Set Up
 
-#### Install Docker
+#### 1. Install Docker
 This program uses something called *Docker*. Think of Docker as a way to run the program without messing up your computer.
 
 - Install Docker Desktop:
@@ -31,14 +31,14 @@ This program uses something called *Docker*. Think of Docker as a way to run the
   - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
   - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
-#### Download the Program
+#### 2. Download the Program
 1. [Click here to download the program](https://github.com/Justinon/nyt-crossword-to-kindle/archive/refs/heads/main.zip).
 2. Open the zip file you downloaded.
 3. Inside that folder:
    - Find the file called `.env.example`
    - Make a copy of it and rename the copy to `.env`
 
-#### Get Your NYTimes Login Cookies
+#### 3. Get Your NYTimes Login Cookies
 This program needs proof that *you* have a New York Times subscription. That proof comes from your “cookies” (a little file your browser uses to remember you).
 
 1. Install a browser extension that can export cookies. If you use Chrome, [this one works well](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc).
@@ -47,14 +47,14 @@ This program needs proof that *you* have a New York Times subscription. That pro
 4. Save that file as `cookies.txt` and move it into the same folder where your `.env` file is.
    - (Optional) Compare it to the example file `cookies.sample.txt`—just to make sure it looks similar.
 
-#### (Optional, but Highly Recommended) Use a Throwaway Email
+#### 4. (Optional, but Highly Recommended) Use a Throwaway Email
 This program will send crosswords to your Kindle by email. That means it needs your email password. **For safety, don’t use your main email.**
 
 - Create a new “burner” email just for this.
   - Example: `myburneremail123@gmail.com`
 - You’ll use this address only for sending puzzles.
 
-#### Allow Emails to Your Kindle
+#### 5. Allow Emails to Your Kindle
 Amazon requires you to give permission for who can send things to your Kindle.
 
 1. Go to your [Amazon Kindle settings](https://www.amazon.com/gp/help/customer/display.html?nodeId=GX9XLEVV8G4DB28H).
