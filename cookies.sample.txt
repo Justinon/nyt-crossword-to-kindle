@@ -1,0 +1,28 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	nyt-a	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	nyt-gdpr	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	nyt-geo	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	purr-pref-agent	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	gpp-string	"<BLAH_BLAH_BLAH>"
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	_cb	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	purr-cache	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	nyt-auth-method	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	RT	"<BLAH_BLAH_BLAH>"
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	iter_id	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	nyt-purr	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	__gads	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	__gpi	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	__eoi	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	nyt-traceid	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	SIDNY	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	NYT-S	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	fides_consent	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	nyt-jkidd	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	FALSE	<NUMBER>	regi_cookie	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	_chartbeat2	<BLAH_BLAH_BLAH>
+.nytimes.com	TRUE	/	TRUE	<NUMBER>	_cb_svref	<BLAH_BLAH_BLAH>
+.www.nytimes.com	TRUE	/	TRUE	<NUMBER>	datadome	<BLAH_BLAH_BLAH>
+www.nytimes.com	FALSE	/	TRUE	<NUMBER>	_dd_s	<BLAH_BLAH_BLAH>
