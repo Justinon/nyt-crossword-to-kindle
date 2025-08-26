@@ -21,26 +21,44 @@ LINK TUTORIAL HERE
 
 Follow these instructions in order to get to solving!
 
-### 1. Get It Ready
+### 1. Get Things Set Up
 
-We need to get the program and install any prerequisites:
+#### Install Docker
+This program uses something called *Docker*. Think of Docker as a way to run the program without messing up your computer.
 
-1. Install Docker Desktop:
-   1. [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
-   2. [MacOS](https://docs.docker.com/desktop/setup/install/mac-install/)
-   3. [Linux](https://docs.docker.com/desktop/setup/install/linux/)
-2. [Download this code repository](https://github.com/Justinon/nyt-crossword-to-kindle/archive/refs/heads/main.zip) and open the zip.
-   1. Keep in mind where you stored this. We'll need to reference its location soon.
-3. In that folder, copy the contents of `.env.example` into a new file called `.env`.
-4. Get your NYTimes cookies:
-   1. On your web browser, install any extension capable of exporting cookies. My recommendation if on Chrome is [this one](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc).
-   2. In your web browser, login to https://nytimes.com and use the extension to export your NYTimes cookies in the Netscape format.
-      1. Move this file into the unzipped folder (i.e., next to `.env`)
-      2. **_\[OPTIONAL\]_** Check that your `cookies.txt` file resembles what you see in `cookies.sample.txt`.
-5. **_\[OPTIONAL, BUT RECOMMENDED\]_** Create a new email address. This will be used to send crosswords to your Kindle.
-   1. **_Do not use this email address for anything else other than sending crosswords, because you need to give this program its password. You and I both care about online safety so re-using your real email is highly, highly discouraged...but I can't stop you._**
-6. [Allow your email address to send documents to your Kindle](https://www.amazon.com/gp/help/customer/display.html?nodeId=GX9XLEVV8G4DB28H).
-7. Now it's [time to fill out the details](#the-env-file) in the `.env` file.
+- Install Docker Desktop:
+  - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+  - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+  - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
+
+#### Download the Program
+1. [Click here to download the program](https://github.com/Justinon/nyt-crossword-to-kindle/archive/refs/heads/main.zip).
+2. Open the zip file you downloaded.
+3. Inside that folder:
+   - Find the file called `.env.example`
+   - Make a copy of it and rename the copy to `.env`
+
+#### Get Your NYTimes Login Cookies
+This program needs proof that *you* have a New York Times subscription. That proof comes from your “cookies” (a little file your browser uses to remember you).
+
+1. Install a browser extension that can export cookies. If you use Chrome, [this one works well](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc).
+2. Log into [nytimes.com](https://nytimes.com).
+3. Use the extension to export your cookies in “Netscape” format.
+4. Save that file as `cookies.txt` and move it into the same folder where your `.env` file is.
+   - (Optional) Compare it to the example file `cookies.sample.txt`—just to make sure it looks similar.
+
+#### (Optional, but Highly Recommended) Use a Throwaway Email
+This program will send crosswords to your Kindle by email. That means it needs your email password. **For safety, don’t use your main email.**
+
+- Create a new “burner” email just for this.
+  - Example: `myburneremail123@gmail.com`
+- You’ll use this address only for sending puzzles.
+
+#### Allow Emails to Your Kindle
+Amazon requires you to give permission for who can send things to your Kindle.
+
+1. Go to your [Amazon Kindle settings](https://www.amazon.com/gp/help/customer/display.html?nodeId=GX9XLEVV8G4DB28H).
+2. Add your new burner email address as an approved sender.
 
 #### The .env File
 
@@ -68,6 +86,7 @@ Let's cover each line one-by-one:
       2. For a fullscreen crossword with the next page being the clues, set `--version big`
    2. If you want to repeat the [Test It Out step](#2-test-it-out) manually to get a specific date's crossword, set `--date YYYY-MM-DD`. For example, to get the crossword from August 2nd, 2023, set to `--date 2023-08-02`.
    3. You can combine these configurations. For example, if you want the `big` crossword from January 4th, 1999, set the value to `--version big --date 1999-01-04`.
+
 
 ### 2. Test It Out
 Let's make sure it's all configured correctly:
