@@ -160,6 +160,16 @@ function validate_flag_composition() {
     validate_flags_date_range "${CROSSWORD_FROM_DATE}" "${CROSSWORD_TO_DATE}"
 }
 
+function refresh_session_token() {
+    echo 'Refreshing cookies to ensure they will not expire...'
+    local nyt_refresh_url='https://a.nytimes.com/svc/nyt/data-layer'
+
+    local cookies=$(curl --silent --cookie-jar - -o /dev/null -b "${COOKIES_FILE_PATH}" "${nyt_refresh_url}")
+    printf '%s\n' "$cookies" > $COOKIES_FILE_PATH
+
+    echo 'Cookies refreshed.'
+}
+
 # Obtains the newspaper version of the puzzle from today's date
 function get_puzzle_newspaper_version() {
     local translated_date=$(date "${DATE_FLAGS[@]}" "${CROSSWORD_EXACT_DATE}" +"%b%d%y")
@@ -220,6 +230,7 @@ function get_puzzle_game_version() {
 # BEGIN MAIN EXECUTION
 verify_env_vars
 parse_flags $@
+refresh_session_token
 
 # Obtain puzzle
 case "${CROSSWORD_VERSION}" in
