@@ -33,8 +33,15 @@ This program uses something called *Docker*. Think of Docker as a way to run the
 
 #### 2. Download the Program
 1. [Click here to download the program](https://github.com/Justinon/nyt-crossword-to-kindle/archive/refs/heads/main.zip).
-2. Open the zip file you downloaded.
-3. Inside that folder:
+2. Unzip (extract) the zip file you downloaded.
+   1. On Windows, use File Explorer
+   2. On MacOS, use Finder
+   3. On Linux...you know what you're doing
+3. Enable viewing hidden files.
+   1. [Windows](https://helpx.adobe.com/x-productkb/global/show-hidden-files-folders-extensions.html)
+   2. On MacOS, press `CMD + Shift + .` in your Finder window
+   3. On Linux...you know what you're doing
+4. Inside that folder:
    - Find the file called `.env.example`
    - Make a copy of it and rename the copy to `.env`
 
@@ -44,7 +51,7 @@ This program needs proof that *you* have a New York Times subscription. That pro
 1. Install a browser extension that can export cookies. If you use Chrome, [this one works well](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc).
 2. Log into [nytimes.com](https://nytimes.com).
 3. Use the extension to export your cookies in “Netscape” format.
-4. Save that file as `cookies.txt` and move it into the same folder where your `.env` file is.
+4. Save that file as `cookies.nyt.txt` and move it into the same folder where your `.env` file is.
    - (Optional) Compare it to the example file `cookies.sample.txt`—just to make sure it looks similar.
 
 #### 4. (Optional, but Highly Recommended) Use a Throwaway Email
@@ -60,35 +67,58 @@ Amazon requires you to give permission for who can send things to your Kindle.
 1. Go to your [Amazon Kindle settings](https://www.amazon.com/gp/help/customer/display.html?nodeId=GX9XLEVV8G4DB28H).
 2. Add your new burner email address as an approved sender.
 
-#### The .env File
+#### 6. Fill in the `.env` File
+Remember the `.env` file you created earlier? This file is where you tell the program about your setup.
 
-This is where the bulk of the configuration for the program lies.
+1. Open up the file in a text editor.
+   1. On Windows, use Notepad
+   2. On MacOS, use TextEdit
+   3. On Linux...you know what you're doing
+2. Fill in the values. For each of the below, you only change the part **after the `=`**. 
 
-For each line, you'll see `<SOME_NAME>=<SOME_VALUE>`. We need to replace everything after the `=` for each line with your real information.
+   * **`DOWNLOADS_SYSTEM_PATH`** → Path to folder where you saved the project when you downloaded it.
+      - Example (Mac/Linux): `~/Downloads/nyt-crossword-to-kindle`
+      - Example (Windows): `C:\Users\YourName\Downloads\nyt-crossword-to-kindle`
 
-Let's cover each line one-by-one:
+   * **`COOKIE_FILE`** → Path to your `cookies.nyt.txt` file ([from earlier steps](#3-get-your-nytimes-login-cookies)).
+      - Example: `~/Downloads/nyt-crossword-to-kindle/cookies.nyt.txt`
 
-1. `DOWNLOADS_SYSTEM_PATH`
-   1. Set everything after the `=` sign to be whatever the path to your downloaded folder is from when you downloaded the repository. This will resemble something like `~/Downloads/nyt-crossword-to-kindle` if on MacOS/Linux or `C:\Users\<Your Username>\Downloads` on Windows.
-2. `COOKIE_FILE`
-   1. Set everything after the `=` sign to be the path to the cookies file you got from the prior steps. This should be in the same folder as `DOWNLOADS_SYSTEM_PATH`...for example, `~/Downloads/nyt-crossword-to-kindle/cookies.txt`.
-3. `CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX`
-   1. Assuming you created a new email address, let's suppose `myburneremail123@gmail.com`, this value should be `myburneremail123`.
-4. `CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN`
-   1. Depends on where you created your burner email address. If `myburneremail123@gmail.com` is the email address, this value should be `gmail.com`.
-5. `CROSSWORD_SENDER_EMAIL_APP_PASSWORD`
-   1. Should be the password to the burner email address.
-6. `KINDLE_EMAIL_ADDRESS`
-   1. The value should be the [email address specified in your Amazon settings](https://www.amazon.com/sendtokindle/email).
-7. `CROSSWORD_COMMAND_LINE_ARGUMENTS`
-   1. Customizations for how you want the crossword to be sent. If you're happy with the newspaper version, where solutions for the present crossword come the next day, simply remove the entire line.
-      1. If you want the games edition of the crossword (a little bigger than newspaper, no previous solutions), then set: `--version games`. Includes solutions for the current puzzle on the next page of the PDF.
-      2. For a fullscreen crossword with the next page being the clues, set `--version big`
-   2. If you want to repeat the [Test It Out step](#2-test-it-out) manually to get a specific date's crossword, set `--date YYYY-MM-DD`. For example, to get the crossword from August 2nd, 2023, set to `--date 2023-08-02`.
-   3. You can combine these configurations. For example, if you want the `big` crossword from January 4th, 1999, set the value to `--version big --date 1999-01-04`.
+   * **`CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX`** → The part of your burner email before the `@`.
+      - Example: if your email is `myburneremail123@gmail.com`, write `myburneremail123`.
 
+   * **`CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN`** → The part of your burner email after the `@`.
+      - Example: `gmail.com`
 
-### 2. Test It Out
+   * **`CROSSWORD_SENDER_EMAIL_APP_PASSWORD`** → The password for your burner email.
+
+   * **`KINDLE_EMAIL_ADDRESS`** → The special email address Amazon gave you for your Kindle
+      ([find it here](https://www.amazon.com/sendtokindle/email)).
+
+   * **`CROSSWORD_COMMAND_LINE_ARGUMENTS`** (Optional) → Extra options for customizing the crossword.
+      - `--version [newspaper | games | big]` → how you want the crossword formatted. Defaults to newspaper if not specified.
+        - Example: `--version newspaper` → classic crossword with previous day's solution
+        - Example: `--version games` → puzzle on first page, its solution on next page
+        - Example: `--version big` → full-page puzzle, clues on next page, solution on the last
+      - `--date YYYY-MM-DD` → get a crossword from a specific date.
+        - Example: `--date 2023-04-02` → April 2nd, 2023
+      - `--from-date YYYY-MM-DD --to-date YYYY-MM-DD` → get all crosswords from the given date range. This combines all of them into a single PDF.
+        - Example: `--from-date 2024-01-01 --to-date 2024-12-31` → All of 2024
+      - `--multiple-pdfs` → when date range is specified, sends each as a separate PDF
+      - `--disable-send` → only downloads the crossword(s)...does not send to your Kindle
+    
+      You can combine these options.
+      
+      Examples:
+      - `--version big --date 1999-01-04`
+        - Sends the big version of the crossword from January 4th, 1999 to your Kindle.
+      - `--from-date 2021-08-01 --to-date 2021-08-31`
+        - Sends all newspaper version crosswords from August 2021 (as a single PDF) to your Kindle.
+      - `--disable-send --version games --date 1999-05-20`
+        - Downloads games version of May 20th, 1999 crossword but does not send to Kindle
+
+3. Compare against `.env.example` just to make sure it looks similar.
+
+### Test It Out
 Let's make sure it's all configured correctly:
 
 1. Open a terminal window (on MacOS or Linux) or a PowerShell window (on Windows).
@@ -97,7 +127,7 @@ Let's make sure it's all configured correctly:
    - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle` (replace with your actual folder path).
 3. Once you are in the correct folder, type the following command and press Enter:
      ```
-     docker-compose up
+     docker-compose build && docker-compose up
      ```
      This will run the program. If everything is successful, the output should resemble this:
      ```
@@ -109,7 +139,7 @@ Let's make sure it's all configured correctly:
      ```
 4. Now, check your Kindle. It may take a few minutes to appear.
 
-### 3. Setup The Daily Automation
+### Setup The Daily Automation
 
 TODO
 
