@@ -187,7 +187,7 @@ function refresh_session_token() {
     echo 'Refreshing cookies to ensure they will not expire...'
     local nyt_refresh_url='https://a.nytimes.com/svc/nyt/data-layer'
 
-    local cookies=$(curl --silent --cookie-jar - -o /dev/null -b "${COOKIES_FILE_PATH}" "${nyt_refresh_url}")
+    local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_PATH}" "${nyt_refresh_url}")
     printf '%s\n' "$cookies" > $COOKIES_FILE_PATH
 
     echo 'Cookies refreshed.'
@@ -257,7 +257,7 @@ function get_puzzle_newspaper_version() {
 
     # Get puzzle pdf
     OUTPUT_CROSSWORD_FILE_PATH="${DOWNLOADS_PATH}/crossword-${CROSSWORD_EXACT_DATE}-${day_of_the_week}-newspaper.transient.pdf"
-    curl -b "${COOKIES_FILE_PATH}" "${DAILY_PUZZLE_PDF_PATH}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
+    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${DAILY_PUZZLE_PDF_PATH}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
 
     echo "Successfully acquired newspaper version. Crossword name is $(basename ${OUTPUT_CROSSWORD_FILE_PATH})"
 }
@@ -273,7 +273,7 @@ function get_puzzle_game_version() {
     local nyt_crossword_puzzle_games_ans_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.ans.pdf'
 
     # Get puzzle info
-    local puzzle_info=$(curl -b "${COOKIES_FILE_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
+    local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
     local puzzid=$(echo "${puzzle_info}" | jq '.results[0].puzzle_id' )
     local puzzle_print_date=$(echo "${puzzle_info}" | jq -r '.results[0].print_date')
 
@@ -285,11 +285,11 @@ function get_puzzle_game_version() {
 
     # Get puzzle pdf
     local crossword_file_path="${DOWNLOADS_PATH}/crossword-${date_today_crossword_name}-games-puzzle.pdf"
-    curl -b "${COOKIES_FILE_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
+    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
 
     # Get solution pdf
     local ans_file_path="${DOWNLOADS_PATH}/crossword-${date_today_crossword_name}-games-solution.pdf"
-    curl -b "${COOKIES_FILE_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
+    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
 
     # Combine into final pdf
     local crossword_name="crossword-${date_today_crossword_name}-games"
