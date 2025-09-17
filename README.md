@@ -44,6 +44,7 @@ This program uses something called *Docker*. Think of Docker as a way to run the
 4. Inside that folder:
    - Find the file called `.env.example`
    - Make a copy of it and rename the copy to `.env`
+   - Create a new folder called `downloads`
 
 #### 3. Get Your NYTimes Login Cookies
 This program needs proof that *you* have a New York Times subscription. That proof comes from your “cookies” (a little file your browser uses to remember you).
@@ -138,9 +139,3 @@ Let's make sure it's all configured correctly:
      crossword-sender exited with code 0
      ```
 4. Now, check your Kindle. It may take a few minutes to appear.
-
-### Setup The Daily Automation
-
-TODO
-
-https://stackoverflow.com/questions/59123499/crontab-is-not-running-local-bin-script-catalina-bigsur
