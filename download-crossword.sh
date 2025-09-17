@@ -125,8 +125,9 @@ function validate_date_flags_paired() {
 
 function set_flag_defaults() {
     if [ -z "${CROSSWORD_FROM_DATE}" ] && [ -z "${CROSSWORD_TO_DATE}" ]; then
-        echo "Defaulting to today's date for puzzle..."
-        local crossword_exact_date=$(date +"%Y-%m-%d")
+        local crossword_exact_date=$(TZ=${TZ} date +"%Y-%m-%d")
+        echo $(TZ=${TZ} date)
+        echo "Defaulting to today's date (${crossword_exact_date}) for puzzle..."
         CROSSWORD_FROM_DATE="${crossword_exact_date}"
         CROSSWORD_TO_DATE="${crossword_exact_date}"
     fi
@@ -256,8 +257,17 @@ function get_puzzle_newspaper_version() {
     local day_of_the_week=$(date "${DATE_FLAGS[@]}" "${CROSSWORD_EXACT_DATE}" +"%A")
 
     # Get puzzle pdf
+    # TODO: Extract naming convention into a function s.t. we can only append *transient* if SINGLE_PDF is true
     OUTPUT_CROSSWORD_FILE_PATH="${DOWNLOADS_PATH}/crossword-${CROSSWORD_EXACT_DATE}-${day_of_the_week}-newspaper.transient.pdf"
     curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${DAILY_PUZZLE_PDF_PATH}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
+
+    # Verify puzzle for the passed in date exists
+    local is_valid_puzzle=$(jq . "${OUTPUT_CROSSWORD_FILE_PATH}" >/dev/null 2>&1 && echo false || echo true)
+    test "${is_valid_puzzle}" = "false" \
+        && echo "ERROR: Puzzle for date ${CROSSWORD_EXACT_DATE} not found. Not yet released? Exiting." \
+        && rm -f "${OUTPUT_CROSSWORD_FILE_PATH}" \
+        && exit 1 \
+        || echo "Found puzzle for provided date ${CROSSWORD_EXACT_DATE}. Downloading."
 
     echo "Successfully acquired newspaper version. Crossword name is $(basename ${OUTPUT_CROSSWORD_FILE_PATH})"
 }
@@ -274,8 +284,17 @@ function get_puzzle_game_version() {
 
     # Get puzzle info
     local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
-    local puzzid=$(echo "${puzzle_info}" | jq '.results[0].puzzle_id' )
-    local puzzle_print_date=$(echo "${puzzle_info}" | jq -r '.results[0].print_date')
+    local puzzle_info_results=$(echo "${puzzle_info}" | jq '.results')
+
+    # Verify puzzle for the passed in date exists
+    local is_valid_puzzle=$(test "${puzzle_info_results}" = "null" && echo false || echo true)
+    test "${is_valid_puzzle}" = "false" \
+        && echo "ERROR: Puzzle for date ${CROSSWORD_EXACT_DATE} not found. Not yet released? Exiting." \
+        && exit 1 \
+        || echo "Found puzzle for provided date ${CROSSWORD_EXACT_DATE}. Downloading."
+
+    local puzzid=$(echo "${puzzle_info_results}" | jq '.[0].puzzle_id' )
+    local puzzle_print_date=$(echo "${puzzle_info_results}" | jq -r '.[0].print_date')
 
     # Structure pdf path and intended output file name
     local puzzle_pdf_path_rendered=$(printf "${nyt_crossword_puzzle_games_pdf_path}" "${puzzid}")
@@ -292,6 +311,7 @@ function get_puzzle_game_version() {
     curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
 
     # Combine into final pdf
+    # TODO: Extract naming convention into a function s.t. we can only append *transient* if SINGLE_PDF is true
     local crossword_name="crossword-${date_today_crossword_name}-games"
     test "${is_big}" = "false" || crossword_name="${crossword_name}-big"
     OUTPUT_CROSSWORD_FILE_PATH="${DOWNLOADS_PATH}/${crossword_name}.transient.pdf"
@@ -354,7 +374,6 @@ while [[ "${current_date}" < "${CROSSWORD_TO_DATE}" || "${current_date}" == "${C
         send_to_kindle "${OUTPUT_CROSSWORD_FILE_PATH}"
     else
         echo "${OUTPUT_CROSSWORD_FILE_PATH}" >> "${tmp_file_paths}"
-        #append_combined_dates_pdf "${OUTPUT_CROSSWORD_FILE_PATH}"
     fi
 
     # Increment date
