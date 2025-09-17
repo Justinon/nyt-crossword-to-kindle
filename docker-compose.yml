@@ -12,3 +12,18 @@ services:
       - ${DOWNLOADS_SYSTEM_PATH}:/crosswords/downloads
       - ${COOKIE_FILE}:/crosswords/cookies.nyt.txt
     command: "${CROSSWORD_COMMAND_LINE_ARGUMENTS}"
+  restarter:
+    container_name: crossword-daily-restarter
+    image: nyt-crossword-to-kindle-restarter:latest
+    build:
+      context: ./restarter
+    volumes:
+      # map docker.sock into the container
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yml:/docker-compose.yml
+      - ./.env:/.env
+    env_file:
+      - .env
+    environment:
+      RESET_SERVICES: 'sender'
+    restart: unless-stopped
