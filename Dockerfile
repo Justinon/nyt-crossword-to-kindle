@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update && \
-    apk add --no-cache curl bash coreutils jq exiftool ghostscript mutt && \
+    apk add --no-cache curl bash coreutils tzdata jq exiftool ghostscript mutt && \
     mkdir /crosswords
 
 WORKDIR /crosswords
