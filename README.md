@@ -9,7 +9,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
 - [Tutorial Video](#tutorial-video)
 - [Basic Setup Instructions](#basic-setup-instructions)
   - [1. Install Docker](#1-install-docker)
-  - [2. Download the Program](#2-download-the-program)
+  - [2. Download the nyt-crossword-to-kindle Program](#2-download-the-nyt-crossword-to-kindle-program)
   - [3. Get Your NYTimes Login Cookies](#3-get-your-nytimes-login-cookies)
   - [4. (Optional, but Highly Recommended) Use a Throwaway Email](#4-optional-but-highly-recommended-use-a-throwaway-email)
   - [5. Allow Emails to Your Kindle](#5-allow-emails-to-your-kindle)
@@ -44,14 +44,14 @@ LINK TUTORIAL HERE
 Follow these instructions in order to get to solving!
 
 ### 1. Install Docker
-This program uses something called *Docker*. Think of Docker as a way to run the program without messing up your computer.
+This program uses something called *Docker*. While a massive oversimplification, think of Docker as a way to run pre-packaged computer programs mostly agnostic of the operating system you're on (Windows, MacOS, Linux, etc.).
 
 - Install Docker Desktop:
   - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
   - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
   - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
-### 2. Download the Program
+### 2. Download the nyt-crossword-to-kindle Program
 1. [Click here to download the program](https://github.com/Justinon/nyt-crossword-to-kindle/archive/refs/heads/main.zip).
 2. Unzip (extract) the zip file you downloaded.
    1. On Windows, use File Explorer
