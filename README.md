@@ -63,7 +63,6 @@ This program uses something called *Docker*. While a massive oversimplification,
 4. Inside that folder:
    - Find the file called `.env.example`
    - Make a copy of it and rename the copy to `.env`
-   - Create a new folder called `downloads`
 
 ### 3. Get Your NYTimes Login Cookies
 This program needs proof that *you* have a New York Times subscription. That proof comes from your “cookies” (a little file your browser uses to remember you).
@@ -118,7 +117,8 @@ Let's make sure it's all configured correctly:
      crossword-sender  | -----------------CROSSWORD SENDER STARTING-----------------
      crossword-sender  | Kindle email address: myawesomekindleemail@kindle.com
      crossword-sender  | Defaulting to today's date (2025-09-20) for puzzle...
-     crossword-sender  | Refreshing cookies to ensure they will not expire...
+     crossword-sender  | Checking NYT cookies are present...
+     crossword-sender  | Validated NYT cookies. Refreshing to ensure they will not expire...
      crossword-sender  | Cookies refreshed.
      crossword-sender  | Game version selected for date 2025-09-20
      crossword-sender  | Found puzzle for provided date 2025-09-20. Downloading.
@@ -130,13 +130,13 @@ Let's make sure it's all configured correctly:
      crossword-sender  | Send successful!
      crossword-sender  | -----------------CROSSWORD SENDER FINISHED-----------------
      crossword-sender  | 
-     crossword-sender  | Will send your crossword every day at: 08:00 America/Los_Angeles time
+     crossword-sender  | Will send your crossword every day at: 08:00 America/New_York time
      crossword-sender  | The current time is: Sep 20 2025, 08:01
      crossword-sender  | Next restart will be: Sep 21 2025, 08:00
      crossword-sender  | See you in 23 hours 59 minutes and 58 seconds......
      ```
 4. Now, check your Kindle...It may take a few minutes to appear. If it doesn't, see [troubleshooting below](#troubleshooting).
-5. Huzzah! You're done. By default, you'll get your morning crossword at 8am Eastern Time.
+5. Huzzah! You're done. By default, you'll get your daily crossword at 8am Eastern Time.
    * If you want to customize your options further, continue to [Customization](#customization).
 
 ## Customization
