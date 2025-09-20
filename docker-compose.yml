@@ -9,6 +9,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${DOWNLOADS_SYSTEM_PATH}:/crosswords/downloads
-      - ${COOKIE_FILE}:/crosswords/cookies.nyt.txt
-    command: "${CROSSWORD_COMMAND_LINE_ARGUMENTS}"
+      - ${CROSSWORD_DOWNLOADS_PATH}:/crosswords/downloads
+      - ${NYT_COOKIES_PATH}:/crosswords/cookies.nyt.txt
+      # To allow for changing .env without restarting the container
+      - ./.env:/crosswords/.env
+    restart: unless-stopped

@@ -2,22 +2,19 @@
 set -eo pipefail
 
 SCRIPT_PATH="$(dirname "$(readlink -f "$0")")"
-COOKIES_FILE_PATH="${SCRIPT_PATH}/cookies.nyt.txt"
-DOWNLOADS_PATH="${SCRIPT_PATH}/downloads"
-
-declare -a DATE_FLAGS
+COOKIES_FILE_INTERNAL_PATH="${SCRIPT_PATH}/cookies.nyt.txt"
+DOWNLOADS_INTERNAL_PATH="${SCRIPT_PATH}/downloads"
 
 function verify_env_vars() {
-    if [ ! -f "${COOKIES_FILE_PATH}" ]; then
-        echo "NYT Cookie file not present at expected location ${COOKIES_FILE_PATH}. Exiting."
+    if [ ! -f "${COOKIES_FILE_INTERNAL_PATH}" ]; then
+        echo "NYT Cookie file not present at expected location ${COOKIES_FILE_INTERNAL_PATH}. Exiting."
         exit 1
     fi
 
-    if [ ! -d "${DOWNLOADS_PATH}" ]; then
-        echo "Downloads directory not present at expected location ${DOWNLOADS_PATH}. Exiting."
+    if [ ! -d "${DOWNLOADS_INTERNAL_PATH}" ]; then
+        echo "Downloads directory not present at expected location ${DOWNLOADS_INTERNAL_PATH}. Exiting."
         exit 1
     fi
-    echo "Downloads path: ${DOWNLOADS_PATH}"
 
     if [ -z "${KINDLE_EMAIL_ADDRESS}" ]; then
         echo "Kindle email address not set in environment variable KINDLE_EMAIL_ADDRESS. Exiting."
@@ -26,21 +23,7 @@ function verify_env_vars() {
     echo "Kindle email address: ${KINDLE_EMAIL_ADDRESS}"
 }
 
-function parse_critical_flags() {
-    IS_LINUX=false
-    while [ $# -gt 0 ]; do
-        case $1 in
-            -l | --linux)
-                IS_LINUX=true
-                ;;
-        esac
-        shift
-    done
-
-    set_date_flags_by_os
-}
-
-function parse_optional_flags() {
+function parse_flags() {
     while [ $# -gt 0 ]; do
         case $1 in
             -v | --version)
@@ -99,7 +82,7 @@ function parse_optional_flags() {
                 ;;
             -m | --multiple-pdfs)
                 echo 'Will ensure each puzzle (w/ solution if applicable with type) is in its own PDF.'
-                SINGLE_PDF=false
+                MERGE_MULTIPLE_PDFS=false
                 ;;
         esac
         shift
@@ -107,11 +90,6 @@ function parse_optional_flags() {
 
     validate_date_flags_paired
     set_flag_defaults
-}
-
-function parse_flags() {
-    parse_critical_flags $@
-    parse_optional_flags $@
 }
 
 function validate_date_flags_paired() {
@@ -125,8 +103,8 @@ function validate_date_flags_paired() {
 
 function set_flag_defaults() {
     if [ -z "${CROSSWORD_FROM_DATE}" ] && [ -z "${CROSSWORD_TO_DATE}" ]; then
-        echo "Defaulting to today's date for puzzle..."
-        local crossword_exact_date=$(date +"%Y-%m-%d")
+        local crossword_exact_date=$(TZ=${TZ} date +"%Y-%m-%d")
+        echo "Defaulting to today's date (${crossword_exact_date}) for puzzle..."
         CROSSWORD_FROM_DATE="${crossword_exact_date}"
         CROSSWORD_TO_DATE="${crossword_exact_date}"
     fi
@@ -135,25 +113,22 @@ function set_flag_defaults() {
         echo "Defaulting to newspaper version..."
         CROSSWORD_VERSION='newspaper'
     fi
-
-    if [ -z "${SINGLE_PDF}" ]; then
-        echo "Defaulting to consolidation of all puzzles into a single PDF..."
-        SINGLE_PDF=true
+ 
+    if [ "${CROSSWORD_FROM_DATE}" = "${CROSSWORD_TO_DATE}" ]; then
+        # Skip the merging into a new PDF phase
+        MERGE_MULTIPLE_PDFS=false
     fi
-}
 
-function set_date_flags_by_os() {
-    if [ "${IS_LINUX}" = "true" ]; then
-        DATE_FLAGS+=(-d)
-    else 
-        DATE_FLAGS+=(-j -f "%Y-%m-%d")
+    if [ -z "${MERGE_MULTIPLE_PDFS}" ]; then
+        echo "Defaulting to consolidation of all puzzles into a single PDF..."
+        MERGE_MULTIPLE_PDFS=true
     fi
 }
 
 function validate_flags_date_format() {
     local dateValue="$1"
 
-    if [ ! "${dateValue}" = $(date "${DATE_FLAGS[@]}" "${dateValue}" "+%Y-%m-%d") ]; then
+    if [ ! "${dateValue}" = $(date -d "${dateValue}" "+%Y-%m-%d") ]; then
         echo "Provided date \"${dateValue}\" must be in format \"YYYY-MM-DD\"."
         exit 1
     fi
@@ -165,8 +140,8 @@ function validate_flags_date_range() {
     local to_date="$2"
 
     # convert both to seconds since epoch
-    local fromTime=$(date "${DATE_FLAGS[@]}" "${from_date}" +%s)
-    local toTime=$(date "${DATE_FLAGS[@]}" "${to_date}" +%s)
+    local fromTime=$(date -d "${from_date}" +%s)
+    local toTime=$(date -d "${to_date}" +%s)
 
     # absolute difference in days
     local diff_days=$(( (fromTime > toTime ? fromTime - toTime : toTime - fromTime) / 86400 ))
@@ -179,6 +154,7 @@ function validate_flags_date_range() {
     fi
 }
 
+# TODO: Call this somewhere
 function validate_flag_composition() {
     validate_flags_date_range "${CROSSWORD_FROM_DATE}" "${CROSSWORD_TO_DATE}"
 }
@@ -187,77 +163,78 @@ function refresh_session_token() {
     echo 'Refreshing cookies to ensure they will not expire...'
     local nyt_refresh_url='https://a.nytimes.com/svc/nyt/data-layer'
 
-    local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_PATH}" "${nyt_refresh_url}")
-    printf '%s\n' "$cookies" > $COOKIES_FILE_PATH
+    local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_INTERNAL_PATH}" "${nyt_refresh_url}")
+    printf '%s\n' "$cookies" > $COOKIES_FILE_INTERNAL_PATH
 
     echo 'Cookies refreshed.'
 }
 
-function get_combined_dates_pdf_crossword_file_path() {
-    local day_of_the_week=$(date "${DATE_FLAGS[@]}" "${CROSSWORD_FROM_DATE}" +"%A")
+function get_day_of_the_week() {
+    # YYYY-MM-DD format
+    local date="${1}"
+    echo $(date -d "${date}" +"%A")
+}
+
+# TODO: Rename transient to something else?
+function get_transient_pdf_crossword_file_path() {
+    local day_of_the_week=$(get_day_of_the_week "${CROSSWORD_EXACT_DATE}")
+    local crossword_name="crossword-${CROSSWORD_EXACT_DATE}-${day_of_the_week}-${CROSSWORD_VERSION}"
+
+    if [ "${MERGE_MULTIPLE_PDFS}" = "true" ]; then
+        echo "${DOWNLOADS_INTERNAL_PATH}/${crossword_name}.transient.pdf"
+    else
+        echo "${DOWNLOADS_INTERNAL_PATH}/${crossword_name}.pdf"
+    fi
+}
+
+function get_combined_dates_pdf_file_path() {
+    local day_of_the_week=$(get_day_of_the_week "${CROSSWORD_FROM_DATE}")
     test "${CROSSWORD_FROM_DATE}" = "${CROSSWORD_TO_DATE}" \
         && local date_param="${CROSSWORD_FROM_DATE}-${day_of_the_week}" \
         || local date_param="(${CROSSWORD_FROM_DATE})-(${CROSSWORD_TO_DATE})"
-    echo "${DOWNLOADS_PATH}/crossword-${date_param}-${CROSSWORD_VERSION}.pdf"
+    echo "${DOWNLOADS_INTERNAL_PATH}/crossword-${date_param}-${CROSSWORD_VERSION}.pdf"
 }
 
-# function append_combined_dates_pdf() {
-#     local crossword_file_path_to_append="${1}"
-#     local remove_source_file="${2:-true}"
-#     local final_pdf_path="$(get_combined_dates_pdf_crossword_file_path)"
-
-#     if [ ! -f "${final_pdf_path}" ]; then
-#         echo "Creating start of combined PDF file at path ${final_pdf_path}"
-#         cp "${crossword_file_path_to_append}" "${final_pdf_path}"
-#         echo "Successfully created the start of combined PDF file."
-#     else
-#         local tmp_pdf_path="${final_pdf_path}.tmp"
-#         local to_append_basename="$(basename ${crossword_file_path_to_append})"
-#         echo "Appending crossword ${to_append_basename} to combined PDF at path ${final_pdf_path}"...
-#         gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile="${tmp_pdf_path}" "${final_pdf_path}" "${crossword_file_path_to_append}" \
-#             && mv -f "${tmp_pdf_path}" "${final_pdf_path}"
-#         echo "Successfully appended crossword file ${to_append_basename} to combined PDF."
-#     fi
-
-#     if [ "${remove_source_file}" = "true" ]; then
-#         echo "Removing transient crossword file ${crossword_file_path_to_append}..."
-#         rm -f "${crossword_file_path_to_append}"
-#         echo "Successfully removed transient crossword file."
-#     fi
-# }
-
-function append_combined_dates_pdf() {
-    local crossword_file_paths_to_append="${1}"
+function generate_combined_dates_pdf() {
+    local crosswords_to_combine_file_path="${1}"
     local remove_source_file="${2:-true}"
-    local final_pdf_path="$(get_combined_dates_pdf_crossword_file_path)"
+    local final_pdf_path="$(get_combined_dates_pdf_file_path)"
 
-    local to_append_basename="$(basename ${crossword_file_paths_to_append})"
-    echo "Appending crossword ${to_append_basename} to combined PDF at path ${final_pdf_path}"...
-    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile="${final_pdf_path}" @${crossword_file_paths_to_append}
-    echo "Successfully appended crossword file ${to_append_basename} to combined PDF."
+    local to_append_basename="$(basename ${crosswords_to_combine_file_path})"
+    echo "Appending crosswords in ${to_append_basename} to combined PDF at path ${final_pdf_path}"...
+    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile="${final_pdf_path}" @${crosswords_to_combine_file_path}
+    echo "Successfully appended crosswords from file ${to_append_basename} to combined PDF."
 
     if [ "${remove_source_file}" = "true" ]; then
-        echo "Removing temporary crossword file ${crossword_file_paths_to_append}..."
-        xargs rm -f < "${crossword_file_paths_to_append}"
+        echo "Removing temporary crossword file ${crosswords_to_combine_file_path}..."
+        xargs rm -f < "${crosswords_to_combine_file_path}"
         echo "Successfully removed temporary crossword file."
     fi
-    rm -f "${crossword_file_paths_to_append}"
+    rm -f "${crosswords_to_combine_file_path}"
 }
 
 # Obtains the newspaper version of the puzzle from today's date
 function get_puzzle_newspaper_version() {
-    local translated_date=$(date "${DATE_FLAGS[@]}" "${CROSSWORD_EXACT_DATE}" +"%b%d%y")
+    local translated_date=$(date -d "${CROSSWORD_EXACT_DATE}" +"%b%d%y")
 
     # Format specifier must be in, for example, Jan0125 format for January 1st, 2025 puzzle.
-    local NYT_CROSSWORD_PUZZLE_NEWSPAPER_PDF_PATH='https://www.nytimes.com/svc/crosswords/v2/puzzle/print/%s.pdf'
+    local nyt_crossword_puzzle_newspaper_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/print/%s.pdf'
 
-    local DAILY_PUZZLE_PDF_PATH=$(printf "${NYT_CROSSWORD_PUZZLE_NEWSPAPER_PDF_PATH}" "${translated_date}")
+    local daily_puzzle_pdf_path=$(printf "${nyt_crossword_puzzle_newspaper_pdf_path}" "${translated_date}")
 
-    local day_of_the_week=$(date "${DATE_FLAGS[@]}" "${CROSSWORD_EXACT_DATE}" +"%A")
+    local day_of_the_week=$(get_day_of_the_week "${CROSSWORD_EXACT_DATE}")
 
     # Get puzzle pdf
-    OUTPUT_CROSSWORD_FILE_PATH="${DOWNLOADS_PATH}/crossword-${CROSSWORD_EXACT_DATE}-${day_of_the_week}-newspaper.transient.pdf"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${DAILY_PUZZLE_PDF_PATH}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
+    OUTPUT_CROSSWORD_FILE_PATH="$(get_transient_pdf_crossword_file_path)"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${daily_puzzle_pdf_path}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
+
+    # Verify puzzle for the passed in date exists
+    local is_valid_puzzle=$(jq . "${OUTPUT_CROSSWORD_FILE_PATH}" >/dev/null 2>&1 && echo false || echo true)
+    test "${is_valid_puzzle}" = "false" \
+        && echo "ERROR: Puzzle for date ${CROSSWORD_EXACT_DATE} not found. Not yet released? Exiting." \
+        && rm -f "${OUTPUT_CROSSWORD_FILE_PATH}" \
+        && exit 1 \
+        || echo "Found puzzle for provided date ${CROSSWORD_EXACT_DATE}. Downloading."
 
     echo "Successfully acquired newspaper version. Crossword name is $(basename ${OUTPUT_CROSSWORD_FILE_PATH})"
 }
@@ -273,28 +250,32 @@ function get_puzzle_game_version() {
     local nyt_crossword_puzzle_games_ans_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.ans.pdf'
 
     # Get puzzle info
-    local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
-    local puzzid=$(echo "${puzzle_info}" | jq '.results[0].puzzle_id' )
-    local puzzle_print_date=$(echo "${puzzle_info}" | jq -r '.results[0].print_date')
+    local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
+    local puzzle_info_results=$(echo "${puzzle_info}" | jq '.results')
+
+    # Verify puzzle for the passed in date exists
+    local is_valid_puzzle=$(test "${puzzle_info_results}" = "null" && echo false || echo true)
+    test "${is_valid_puzzle}" = "false" \
+        && echo "ERROR: Puzzle for date ${CROSSWORD_EXACT_DATE} not found. Not yet released? Exiting." \
+        && exit 1 \
+        || echo "Found puzzle for provided date ${CROSSWORD_EXACT_DATE}. Downloading."
+
+    local puzzid=$(echo "${puzzle_info_results}" | jq '.[0].puzzle_id' )
 
     # Structure pdf path and intended output file name
     local puzzle_pdf_path_rendered=$(printf "${nyt_crossword_puzzle_games_pdf_path}" "${puzzid}")
     local puzzle_ans_pdf_path_rendered=$(printf "${nyt_crossword_puzzle_games_ans_pdf_path}" "${puzzid}")
-    local day_of_the_week=$(date "${DATE_FLAGS[@]}" "${puzzle_print_date}" +"%A")
-    local date_today_crossword_name="${puzzle_print_date}-${day_of_the_week}"
 
     # Get puzzle pdf
-    local crossword_file_path="${DOWNLOADS_PATH}/crossword-${date_today_crossword_name}-games-puzzle.pdf"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
+    local crossword_file_path="${DOWNLOADS_INTERNAL_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-puzzle.pdf"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
 
     # Get solution pdf
-    local ans_file_path="${DOWNLOADS_PATH}/crossword-${date_today_crossword_name}-games-solution.pdf"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
+    local ans_file_path="${DOWNLOADS_INTERNAL_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-solution.pdf"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
 
     # Combine into final pdf
-    local crossword_name="crossword-${date_today_crossword_name}-games"
-    test "${is_big}" = "false" || crossword_name="${crossword_name}-big"
-    OUTPUT_CROSSWORD_FILE_PATH="${DOWNLOADS_PATH}/${crossword_name}.transient.pdf"
+    OUTPUT_CROSSWORD_FILE_PATH="$(get_transient_pdf_crossword_file_path)"
     gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile="${OUTPUT_CROSSWORD_FILE_PATH}" "${crossword_file_path}" "${ans_file_path}"
 
     rm "${crossword_file_path}" "${ans_file_path}"
@@ -320,6 +301,8 @@ function send_to_kindle() {
 }
 
 # BEGIN MAIN EXECUTION
+echo -e "\n-----------------CROSSWORD SENDER STARTING-----------------"
+
 verify_env_vars
 parse_flags $@
 refresh_session_token
@@ -350,18 +333,19 @@ while [[ "${current_date}" < "${CROSSWORD_TO_DATE}" || "${current_date}" == "${C
             ;;
     esac
 
-    if [ "${SINGLE_PDF}" = "false" ]; then
+    if [ "${MERGE_MULTIPLE_PDFS}" = "false" ]; then
         send_to_kindle "${OUTPUT_CROSSWORD_FILE_PATH}"
     else
         echo "${OUTPUT_CROSSWORD_FILE_PATH}" >> "${tmp_file_paths}"
-        #append_combined_dates_pdf "${OUTPUT_CROSSWORD_FILE_PATH}"
     fi
 
     # Increment date
-    current_date=$(date -j -f "%Y-%m-%d" -v+1d "${CROSSWORD_EXACT_DATE}" +"%Y-%m-%d" 2>/dev/null || date -d "${CROSSWORD_EXACT_DATE} +1 day" +"%Y-%m-%d")
+    current_date=$(date -d "${CROSSWORD_EXACT_DATE} +1 day" +"%Y-%m-%d")
 done
 
-if [ "${SINGLE_PDF}" = "true" ]; then
-    append_combined_dates_pdf "${tmp_file_paths}"
-    send_to_kindle "$(get_combined_dates_pdf_crossword_file_path)"
+if [ "${MERGE_MULTIPLE_PDFS}" = "true" ]; then
+    generate_combined_dates_pdf "${tmp_file_paths}"
+    send_to_kindle "$(get_combined_dates_pdf_file_path)"
 fi
+
+echo -e "-----------------CROSSWORD SENDER FINISHED-----------------\n"
