@@ -166,7 +166,7 @@ function refresh_session_token() {
     local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_INTERNAL_PATH}" "${nyt_refresh_url}")
     local is_valid_session=$(printf '%s\n' "$cookies" | grep 'NYT-S' && echo true || echo false)
     test "${is_valid_session}" = "false" \
-        && echo "Invalid NYT cookies. Try obtaining your cookies again." \
+        && echo "ERROR: Invalid NYT cookies. Try obtaining your cookies again. Exiting." \
         && exit 1 \
         || echo "Validated NYT cookies. Refreshing to ensure they will not expire..."
     printf '%s\n' "$cookies" > $COOKIES_FILE_INTERNAL_PATH

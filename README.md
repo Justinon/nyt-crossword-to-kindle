@@ -23,7 +23,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
   - [I want my daily crossword sent at a specific time each day](#i-want-my-daily-crossword-sent-at-a-specific-time-each-day)
 - [Customization Examples](#customization-examples)
 - [Troubleshooting](#troubleshooting)
-  - [\`\`](#)
+  - [Invalid NYT Cookies](#invalid-nyt-cookies)
 
 
 ## Requirements
@@ -262,7 +262,16 @@ The following are `CROSSWORD_COMMAND_LINE_ARGUMENTS` examples:
 
 If you're encountering an error not listed here, always read what the output says.
 
-### ``
+### Invalid NYT Cookies
+Your output may show lines this:
+
+```
+...
+crossword-sender  | Checking NYT cookies are present...
+crossword-sender  | ERROR: Invalid NYT cookies. Try obtaining your cookies again. Exiting.
+```
+
+If you see this, then you misconfigured your `cookies.nyt.txt` file during setup. Try following [this step exactly again](#3-get-your-nytimes-login-cookies).
 
 
 <!-- ## TODO:
