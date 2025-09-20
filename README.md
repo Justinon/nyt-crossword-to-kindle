@@ -46,7 +46,7 @@ Follow these instructions in order to get to solving!
 This program uses something called *Docker*. While a massive oversimplification, think of Docker as a way to run pre-packaged computer programs mostly agnostic of the operating system you're on (Windows, MacOS, Linux, etc.).
 
 - Install Docker Desktop:
-  - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+  - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) (do not enable Windows containers)
   - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
   - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
@@ -115,14 +115,28 @@ Let's make sure it's all configured correctly:
      ```
      This will run the program. If everything is successful, the output should resemble this:
      ```
-     ...
-     crossword-sender  | Sending file crossword-<DATE>-<VERSION>.pdf to kindle email address <KINDLE_EMAIL_ADDRESS>
+     crossword-sender  | -----------------CROSSWORD SENDER STARTING-----------------
+     crossword-sender  | Kindle email address: myawesomekindleemail@kindle.com
+     crossword-sender  | Defaulting to today's date (2025-09-20) for puzzle...
+     crossword-sender  | Refreshing cookies to ensure they will not expire...
+     crossword-sender  | Cookies refreshed.
+     crossword-sender  | Game version selected for date 2025-09-20
+     crossword-sender  | Found puzzle for provided date 2025-09-20. Downloading.
+     crossword-sender  | Successfully combined Puzzle with Solution. Crossword name is crossword-2025-09-20-Saturday-games.pdf
+     crossword-sender  | Changing author metadata on PDF crossword-2025-09-20-Saturday-games.pdf
+     crossword-sender  |     1 image files updated
+     crossword-sender  | Sending file crossword-2025-09-20-Saturday-games.pdf to kindle email address myawesomekindleemail@kindle.com
      crossword-sender  | TLSv1.3 connection using TLSv1.3 (TLS_AES_256_GCM_SHA384)
      crossword-sender  | Send successful!
-     crossword-sender exited with code 0
+     crossword-sender  | -----------------CROSSWORD SENDER FINISHED-----------------
+     crossword-sender  | 
+     crossword-sender  | Will send your crossword every day at: 08:00 America/Los_Angeles time
+     crossword-sender  | The current time is: Sep 20 2025, 08:01
+     crossword-sender  | Next restart will be: Sep 21 2025, 08:00
+     crossword-sender  | See you in 23 hours 59 minutes and 58 seconds......
      ```
 4. Now, check your Kindle...It may take a few minutes to appear. If it doesn't, see [troubleshooting below](#troubleshooting).
-5. Huzzah! You're done.
+5. Huzzah! You're done. By default, you'll get your morning crossword at 8am Eastern Time.
    * If you want to customize your options further, continue to [Customization](#customization).
 
 ## Customization

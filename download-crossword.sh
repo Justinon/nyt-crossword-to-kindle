@@ -15,7 +15,6 @@ function verify_env_vars() {
         echo "Downloads directory not present at expected location ${DOWNLOADS_INTERNAL_PATH}. Exiting."
         exit 1
     fi
-    echo "Downloads path: ${DOWNLOADS_INTERNAL_PATH}"
 
     if [ -z "${KINDLE_EMAIL_ADDRESS}" ]; then
         echo "Kindle email address not set in environment variable KINDLE_EMAIL_ADDRESS. Exiting."

@@ -50,5 +50,5 @@ while true; do
 
   # Source .env to detect any changes to command-line arguments
   source ${SCRIPT_PATH}/.env
-  . ${SCRIPT_PATH}/download-crossword.sh --disable-send ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
+  . ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
 done
