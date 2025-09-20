@@ -23,6 +23,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
   - [I want my daily crossword sent at a specific time each day](#i-want-my-daily-crossword-sent-at-a-specific-time-each-day)
 - [Customization Examples](#customization-examples)
 - [Troubleshooting](#troubleshooting)
+  - [\`\`](#)
 
 
 ## Requirements
@@ -110,9 +111,13 @@ Let's make sure it's all configured correctly:
    - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle` (replace with your actual folder path).
 3. Once you are in the correct folder, type the following command and press Enter:
      ```
-     docker compose up --force-recreate
+     docker compose up -d --force-recreate
      ```
-     This will run the program. If everything is successful, the output should resemble this:
+     Your program is now running. Lets check its output:
+     ```
+     docker compose logs -f
+     ```
+     If everything is successful, it should resemble this:
      ```
      crossword-sender  | -----------------CROSSWORD SENDER STARTING-----------------
      crossword-sender  | Kindle email address: myawesomekindleemail@kindle.com
@@ -135,9 +140,11 @@ Let's make sure it's all configured correctly:
      crossword-sender  | Next restart will be: Sep 21 2025, 08:00
      crossword-sender  | See you in 23 hours 59 minutes and 58 seconds......
      ```
-4. Now, check your Kindle...It may take a few minutes to appear. If it doesn't, see [troubleshooting below](#troubleshooting).
+4. Now, check your Kindle...it may take a few minutes to appear. If it doesn't, see [troubleshooting below](#troubleshooting).
 5. Huzzah! You're done. By default, you'll get your daily crossword at 8am Eastern Time.
+   * Crosswords are saved in the `downloads` folder next to `.env` by default.
    * If you want to customize your options further, continue to [Customization](#customization).
+   * Otherwise, you can safely close your terminal or PowerShell window.
 
 ## Customization
 
@@ -162,7 +169,8 @@ Three steps needed: **Disable sending, experiment, and re-enable sending.**
    * Play around with the other [Customization options](#customization) in any combination.
      * NOTE: Make sure to keep the `--disable-send` flag.
    * Follow the [Test It Out instructions](#7-test-it-out) again.
-   * Repeat experimenting as much as you'd like until satisfied.
+   * Look at the downloaded PDF to see if you're satisfied.
+   * Repeat experimenting as much as you'd like.
 3. Re-enable sending:
    * In `.env`, remove the `--disable-send` part of the `CROSSWORD_COMMAND_LINE_ARGUMENTS` variable.
    * Save the file.
@@ -217,7 +225,27 @@ CROSSWORD_COMMAND_LINE_ARGUMENTS='--version games --from-date 2005-05-01 --to-da
 ```
 
 ### I want my daily crossword sent at a specific time each day
-TODO
+One step needed: **Change your `.env`.**
+
+1. Change `.env`:
+    * By default, it has two optional entries like this:
+      ```bash
+      # Your time zone. Select an identifier from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+      TZ=America/New_York
+      # The HH:MM time (in the selected TZ) you want your daily crossword sent to you
+      CROSSWORD_DAILY_SEND_TIME="08:00"
+      ```
+
+    * You can change it to use your time zone (select an [identifier here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)), and a 24hour formatted time to send. For example:
+      ```bash
+      # If you want to send at 5pm US Central time:
+
+      # Chicago uses Central time
+      TZ=America/Chicago
+      # 5pm: 12 + 5 = 17
+      CROSSWORD_DAILY_SEND_TIME="17:00"
+      ```
+    * Save the file.
 
 ## Customization Examples
 The following are `CROSSWORD_COMMAND_LINE_ARGUMENTS` examples:
@@ -231,7 +259,10 @@ The following are `CROSSWORD_COMMAND_LINE_ARGUMENTS` examples:
   - Downloads all big version crosswords from August 2021 (each as their own PDF) but does not send to your kindle.
 
 ## Troubleshooting
-TODO
+
+If you're encountering an error not listed here, always read what the output says.
+
+### ``
 
 
 <!-- ## TODO:
