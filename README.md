@@ -15,7 +15,6 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
   - [5. Allow Emails to Your Kindle](#5-allow-emails-to-your-kindle)
   - [6. Fill in the `.env` File](#6-fill-in-the-env-file)
   - [7. Test It Out](#7-test-it-out)
-  - [8. Make It Run Daily](#8-make-it-run-daily)
 - [Customization](#customization)
   - [I want to experiment without sending to Kindle](#i-want-to-experiment-without-sending-to-kindle)
   - [I want my crosswords in a different format](#i-want-my-crosswords-in-a-different-format)
@@ -112,7 +111,7 @@ Let's make sure it's all configured correctly:
    - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle` (replace with your actual folder path).
 3. Once you are in the correct folder, type the following command and press Enter:
      ```
-     docker compose up sender --force-recreate
+     docker compose up --force-recreate
      ```
      This will run the program. If everything is successful, the output should resemble this:
      ```
@@ -123,27 +122,7 @@ Let's make sure it's all configured correctly:
      crossword-sender exited with code 0
      ```
 4. Now, check your Kindle...It may take a few minutes to appear. If it doesn't, see [troubleshooting below](#troubleshooting).
-
-### 8. Make It Run Daily
-Congratulations! You got your crossword...today. Now let's make sure that happens *every day*:
-
-1. Still in the terminal or PowerShell, type the following command and press Enter:
-     ```
-     docker compose up restarter -d
-     ```
-2. Wait a few seconds
-3. Still in the terminal or PowerShell, type the following command and press Enter:
-     ```
-     docker compose logs restarter
-     ```
-     If everything is successful, the output should resemble this:
-     ```
-     crossword-daily-restarter  | Detected restart time: 08:00
-     crossword-daily-restarter  | The current time is: Sep 17 2025, 10:04
-     crossword-daily-restarter  | Next restart will be: Sep 18 2025 at 08:00
-     crossword-daily-restarter  | See you in 21 hours 55 minutes and 44 seconds......
-     ```
-4. Huzzah! You're done.
+5. Huzzah! You're done.
    * If you want to customize your options further, continue to [Customization](#customization).
 
 ## Customization
@@ -243,9 +222,9 @@ TODO
 
 <!-- ## TODO:
 
-   * **`DOWNLOADS_SYSTEM_PATH`** → Path to folder where you saved the project when you downloaded it.
+   * **`CROSSWORD_DOWNLOADS_PATH`** → Path to folder where you saved the project when you downloaded it.
       - Example (Mac/Linux): `~/Downloads/nyt-crossword-to-kindle`
       - Example (Windows): `C:\Users\YourName\Downloads\nyt-crossword-to-kindle`
 
-   * **`COOKIE_FILE`** → Path to your `cookies.nyt.txt` file ([from earlier steps](#3-get-your-nytimes-login-cookies)).
+   * **`NYT_COOKIES_PATH`** → Path to your `cookies.nyt.txt` file ([from earlier steps](#3-get-your-nytimes-login-cookies)).
       - Example: `~/Downloads/nyt-crossword-to-kindle/cookies.nyt.txt` -->

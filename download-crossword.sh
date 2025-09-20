@@ -2,20 +2,20 @@
 set -eo pipefail
 
 SCRIPT_PATH="$(dirname "$(readlink -f "$0")")"
-COOKIES_FILE_PATH="${SCRIPT_PATH}/cookies.nyt.txt"
-DOWNLOADS_PATH="${SCRIPT_PATH}/downloads"
+COOKIES_FILE_INTERNAL_PATH="${SCRIPT_PATH}/cookies.nyt.txt"
+DOWNLOADS_INTERNAL_PATH="${SCRIPT_PATH}/downloads"
 
 function verify_env_vars() {
-    if [ ! -f "${COOKIES_FILE_PATH}" ]; then
-        echo "NYT Cookie file not present at expected location ${COOKIES_FILE_PATH}. Exiting."
+    if [ ! -f "${COOKIES_FILE_INTERNAL_PATH}" ]; then
+        echo "NYT Cookie file not present at expected location ${COOKIES_FILE_INTERNAL_PATH}. Exiting."
         exit 1
     fi
 
-    if [ ! -d "${DOWNLOADS_PATH}" ]; then
-        echo "Downloads directory not present at expected location ${DOWNLOADS_PATH}. Exiting."
+    if [ ! -d "${DOWNLOADS_INTERNAL_PATH}" ]; then
+        echo "Downloads directory not present at expected location ${DOWNLOADS_INTERNAL_PATH}. Exiting."
         exit 1
     fi
-    echo "Downloads path: ${DOWNLOADS_PATH}"
+    echo "Downloads path: ${DOWNLOADS_INTERNAL_PATH}"
 
     if [ -z "${KINDLE_EMAIL_ADDRESS}" ]; then
         echo "Kindle email address not set in environment variable KINDLE_EMAIL_ADDRESS. Exiting."
@@ -164,8 +164,8 @@ function refresh_session_token() {
     echo 'Refreshing cookies to ensure they will not expire...'
     local nyt_refresh_url='https://a.nytimes.com/svc/nyt/data-layer'
 
-    local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_PATH}" "${nyt_refresh_url}")
-    printf '%s\n' "$cookies" > $COOKIES_FILE_PATH
+    local cookies=$(curl --silent --show-error --cookie-jar - -o /dev/null -b "${COOKIES_FILE_INTERNAL_PATH}" "${nyt_refresh_url}")
+    printf '%s\n' "$cookies" > $COOKIES_FILE_INTERNAL_PATH
 
     echo 'Cookies refreshed.'
 }
@@ -182,9 +182,9 @@ function get_transient_pdf_crossword_file_path() {
     local crossword_name="crossword-${CROSSWORD_EXACT_DATE}-${day_of_the_week}-${CROSSWORD_VERSION}"
 
     if [ "${MERGE_MULTIPLE_PDFS}" = "true" ]; then
-        echo "${DOWNLOADS_PATH}/${crossword_name}.transient.pdf"
+        echo "${DOWNLOADS_INTERNAL_PATH}/${crossword_name}.transient.pdf"
     else
-        echo "${DOWNLOADS_PATH}/${crossword_name}.pdf"
+        echo "${DOWNLOADS_INTERNAL_PATH}/${crossword_name}.pdf"
     fi
 }
 
@@ -193,7 +193,7 @@ function get_combined_dates_pdf_file_path() {
     test "${CROSSWORD_FROM_DATE}" = "${CROSSWORD_TO_DATE}" \
         && local date_param="${CROSSWORD_FROM_DATE}-${day_of_the_week}" \
         || local date_param="(${CROSSWORD_FROM_DATE})-(${CROSSWORD_TO_DATE})"
-    echo "${DOWNLOADS_PATH}/crossword-${date_param}-${CROSSWORD_VERSION}.pdf"
+    echo "${DOWNLOADS_INTERNAL_PATH}/crossword-${date_param}-${CROSSWORD_VERSION}.pdf"
 }
 
 function generate_combined_dates_pdf() {
@@ -227,7 +227,7 @@ function get_puzzle_newspaper_version() {
 
     # Get puzzle pdf
     OUTPUT_CROSSWORD_FILE_PATH="$(get_transient_pdf_crossword_file_path)"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${daily_puzzle_pdf_path}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${daily_puzzle_pdf_path}" --output "${OUTPUT_CROSSWORD_FILE_PATH}"
 
     # Verify puzzle for the passed in date exists
     local is_valid_puzzle=$(jq . "${OUTPUT_CROSSWORD_FILE_PATH}" >/dev/null 2>&1 && echo false || echo true)
@@ -251,7 +251,7 @@ function get_puzzle_game_version() {
     local nyt_crossword_puzzle_games_ans_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.ans.pdf'
 
     # Get puzzle info
-    local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
+    local puzzle_info=$(curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${nyt_crosswords_puzzle_json_path}?publish_type=daily&sort_order=asc&sort_by=print_date&date_start=${CROSSWORD_EXACT_DATE}&date_end=${CROSSWORD_EXACT_DATE}&limit=1")
     local puzzle_info_results=$(echo "${puzzle_info}" | jq '.results')
 
     # Verify puzzle for the passed in date exists
@@ -268,12 +268,12 @@ function get_puzzle_game_version() {
     local puzzle_ans_pdf_path_rendered=$(printf "${nyt_crossword_puzzle_games_ans_pdf_path}" "${puzzid}")
 
     # Get puzzle pdf
-    local crossword_file_path="${DOWNLOADS_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-puzzle.pdf"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
+    local crossword_file_path="${DOWNLOADS_INTERNAL_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-puzzle.pdf"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${puzzle_pdf_path_rendered}" --output "${crossword_file_path}"
 
     # Get solution pdf
-    local ans_file_path="${DOWNLOADS_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-solution.pdf"
-    curl --silent --show-error -b "${COOKIES_FILE_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
+    local ans_file_path="${DOWNLOADS_INTERNAL_PATH}/crossword-${CROSSWORD_EXACT_DATE}-games-solution.pdf"
+    curl --silent --show-error -b "${COOKIES_FILE_INTERNAL_PATH}" "${puzzle_ans_pdf_path_rendered}" --output "${ans_file_path}"
 
     # Combine into final pdf
     OUTPUT_CROSSWORD_FILE_PATH="$(get_transient_pdf_crossword_file_path)"
@@ -302,6 +302,8 @@ function send_to_kindle() {
 }
 
 # BEGIN MAIN EXECUTION
+echo -e "\n-----------------CROSSWORD SENDER STARTING-----------------"
+
 verify_env_vars
 parse_flags $@
 refresh_session_token
@@ -346,3 +348,5 @@ if [ "${MERGE_MULTIPLE_PDFS}" = "true" ]; then
     generate_combined_dates_pdf "${tmp_file_paths}"
     send_to_kindle "$(get_combined_dates_pdf_file_path)"
 fi
+
+echo -e "-----------------CROSSWORD SENDER FINISHED-----------------\n"

@@ -9,21 +9,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ${DOWNLOADS_SYSTEM_PATH}:/crosswords/downloads
-      - ${COOKIE_FILE}:/crosswords/cookies.nyt.txt
-    command: "${CROSSWORD_COMMAND_LINE_ARGUMENTS}"
-  restarter:
-    container_name: crossword-daily-restarter
-    image: nyt-crossword-to-kindle-restarter:latest
-    build:
-      context: ./restarter
-    volumes:
-      # map docker.sock into the container
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./docker-compose.yml:/docker-compose.yml:ro
-      - ./.env:/.env:ro
-    env_file:
-      - .env
-    environment:
-      RESET_SERVICES: 'sender'
+      - ${CROSSWORD_DOWNLOADS_PATH}:/crosswords/downloads
+      - ${NYT_COOKIES_PATH}:/crosswords/cookies.nyt.txt
+      # To allow for changing .env without restarting the container
+      - ./.env:/crosswords/.env
     restart: unless-stopped
