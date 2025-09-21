@@ -273,7 +273,7 @@ crossword-sender  | ERROR: Invalid NYT cookies. Try obtaining your cookies again
 
 If you see this, then you misconfigured your `cookies.nyt.txt` file during setup. Try following [this step exactly again](#3-get-your-nytimes-login-cookies).
 
-
+blah
 <!-- ## TODO:
 
    * **`CROSSWORD_DOWNLOADS_PATH`** → Path to folder where you saved the project when you downloaded it.
