@@ -28,16 +28,15 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
 
 ## Requirements
 
-Any technical requirements listed below will be walked through in the [tutorial video](#tutorial-video) *and* the [step-by-step instructions](#step-by-step-instructions) below.
+Any technical requirements listed below will be walked through in the [tutorial video](#tutorial-video) *and* the [Basic Setup instructions](#basic-setup-instructions) below.
 
 - A tiny bit of patience
 - A valid NYT subscription
-- Docker (or any substitute like OrbStack)
 - An email address (ideally a burner created specifically to send crosswords)
 
 ## Tutorial Video
 
-LINK TUTORIAL HERE
+TODO
 
 ## Basic Setup Instructions
 
