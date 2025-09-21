@@ -24,6 +24,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
 - [Customization Examples](#customization-examples)
 - [Troubleshooting](#troubleshooting)
   - [Invalid NYT Cookies](#invalid-nyt-cookies)
+- [Donations](#donations)
 
 
 ## Requirements
@@ -272,6 +273,10 @@ crossword-sender  | ERROR: Invalid NYT cookies. Try obtaining your cookies again
 
 If you see this, then you misconfigured your `cookies.nyt.txt` file during setup. Try following [this step exactly again](#3-get-your-nytimes-login-cookies).
 
+## Donations
+This tool has been a lot of fun to build. I love maintaining it, but I drink a lot of coffee to do so.
+
+This will forever be a free tool...your donation is never obligatory, but if you want to show some appreciation and keep this alive, we can [virtually cheers over a coffee](https://www.paypal.com/donate/?business=6ZFC75LLTQA3N&no_recurring=0&item_name=Keep+nyt-crossword-to-kindle+%28and+me%29+running+with+a+coffee+%E2%98%95%EF%B8%8F%E2%9D%A4%EF%B8%8F&currency_code=USD).
 
 <!-- ## TODO:
 
