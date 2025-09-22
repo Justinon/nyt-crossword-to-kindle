@@ -1,0 +1,47 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  push-tag:
+    name: Push GitHub Tag
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      did-create-tag: ${{ steps.ccv.outputs.new-tag }}
+      new-tag-version: ${{ steps.ccv.outputs.new-tag-version }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      with:
+        fetch-depth: 0
+    - id: ccv
+      name: Push Incremented Tag
+      uses: smlx/ccv@7318e2f25a52dcd550e75384b84983973251a1f8 # v0.10.0
+    - name: Visualise Incremented Tag
+      env:
+        NEW_TAG: ${{ steps.ccv.outputs.new-tag }}
+        NEW_TAG_VERSION: ${{ steps.ccv.outputs.new-tag-version }}
+        NEW_TAG_VERSION_TYPE: ${{ steps.ccv.outputs.new-tag-version-type }}
+      run: |
+        echo "new-tag=${NEW_TAG}"
+        echo "new-tag-version=${NEW_TAG_VERSION}"
+        echo "new-tag-version-type=${NEW_TAG_VERSION_TYPE}"
+  gh-release:
+    name: Generate GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [push-tag]
+    if: needs.push-tag.outputs.did-create-tag == 'true'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Create Release
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 #v2.3.3
+        with:
+          generate_release_notes: true # This enables automatic release notes generation
+          tag_name: ${{ needs.push-tag.outputs.new-tag-version }}
