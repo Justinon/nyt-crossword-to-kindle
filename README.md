@@ -111,17 +111,7 @@ Let's make sure it's all configured correctly:
    - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle` (replace with your actual folder path).
 3. Once you are in the correct folder, type the following command and press Enter:
      ```
-     docker compose build
-     ```
-     This builds the package that Docker can run. You should see something like this:
-     ```
-     ...
-     [+] Building 1/1
-      ✔ sender  Built 
-     ```
-     Now, we can run the program. Type the following command and press Enter:
-     ```
-     docker compose up -d --force-recreate
+     docker compose up -d --build --force-recreate
      ```
      Your program is now running. Lets check its output:
      ```
