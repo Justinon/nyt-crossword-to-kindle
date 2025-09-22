@@ -7,19 +7,22 @@ on:
 
 jobs:
   check-for-cc:
+    name: Validate Conventional Commits
     runs-on: ubuntu-latest
     steps:
-      - name: check-for-cc
+      - name: Check PR Title and Body
         id: check-for-cc
         uses: agenthunt/conventional-commit-checker-action@v2.0.0
   check-tag:
+    name: Check for New Tag
     permissions:
       contents: read
     runs-on: ubuntu-latest
     needs: [check-for-cc]
     if: needs.check-for-cc.result == 'success'
     steps:
-    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: Checkout Code
+      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       with:
         fetch-depth: 0
     - id: ccv
