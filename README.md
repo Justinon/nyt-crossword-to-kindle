@@ -181,10 +181,11 @@ By default, your `.env` has an entry like this:
 CROSSWORD_COMMAND_LINE_ARGUMENTS='--version games'
 ```
 
-There are three options you can change it to:
+There are multiple options you can change it to:
 - `--version games` → puzzle on first page, its solution on next page
 - `--version newspaper` → classic printed crossword with previous day's solution
 - `--version big` → full-page puzzle, clues on next page, solution on the last
+- `--version southpaw` → puzzle (left-hand side) on first page, its solution on next page
   
 Save the file. The next time your daily crossword sends, it'll be in the selected format.
 
@@ -253,8 +254,8 @@ The following are `CROSSWORD_COMMAND_LINE_ARGUMENTS` examples:
   - Sends the big version of the crossword from January 4th, 1999 to your Kindle.
 - `--version newspaper --from-date 2021-08-01 --to-date 2021-08-31`
   - Sends all newspaper version crosswords from August 2021 (as a single PDF) to your Kindle.
-- `--version games --date 1999-05-20 --disable-send `
-  - Downloads games version of May 20th, 1999 crossword but does not send to Kindle
+- `--version southpaw --date 1999-05-20 --disable-send `
+  - Downloads left-handed puzzle version of May 20th, 1999 crossword but does not send to Kindle
 - `--version big --from-date 2021-08-01 --to-date 2021-08-31 --multiple-pdfs --disable-send`
   - Downloads all big version crosswords from August 2021 (each as their own PDF) but does not send to your kindle.
 
