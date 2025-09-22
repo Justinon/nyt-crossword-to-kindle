@@ -244,14 +244,28 @@ function get_puzzle_newspaper_version() {
     echo "Successfully acquired newspaper version. Crossword name is $(basename ${OUTPUT_CROSSWORD_FILE_PATH})"
 }
 
+# Determines URL based on the subversion of games selected
+function get_puzzle_game_version_pdf_url() {
+    local url='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.pdf'
+    case "${CROSSWORD_VERSION}" in
+        "big")
+            echo "${url}?large_print=true"
+            ;;
+        "southpaw")
+            echo "${url}?southpaw=true"
+            ;;
+        *)
+            echo "${url}"
+            ;;
+    esac
+}
+
 # Obtains the game version of the puzzle that's more recently available (can be ahead of today's current date)
 function get_puzzle_game_version() {
-    local is_big=${1:-false}
     local nyt_crosswords_puzzle_json_path='https://www.nytimes.com/svc/crosswords/v3/puzzles.json'
 
     # Format specifier must be the puzzle ID
-    local nyt_crossword_puzzle_games_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.pdf'
-    test "${is_big}" = "false" || nyt_crossword_puzzle_games_pdf_path="${nyt_crossword_puzzle_games_pdf_path}?large_print=true"
+    local nyt_crossword_puzzle_games_pdf_path="$(get_puzzle_game_version_pdf_url)"
     local nyt_crossword_puzzle_games_ans_pdf_path='https://www.nytimes.com/svc/crosswords/v2/puzzle/%s.ans.pdf'
 
     # Get puzzle info
@@ -324,13 +338,9 @@ while [[ "${current_date}" < "${CROSSWORD_TO_DATE}" || "${current_date}" == "${C
             echo "Newspaper version selected for date ${CROSSWORD_EXACT_DATE}"
             get_puzzle_newspaper_version
             ;;
-        "games")
-            echo "Game version selected for date ${CROSSWORD_EXACT_DATE}"
+        "games"|"big"|"southpaw")
+            echo "${CROSSWORD_VERSION^} version selected for date ${CROSSWORD_EXACT_DATE}"
             get_puzzle_game_version
-            ;;
-        "big")
-            echo "Big game version selected for date ${CROSSWORD_EXACT_DATE}"
-            get_puzzle_game_version true
             ;;
         *)
             echo "Invalid crossword version: ${CROSSWORD_VERSION}"
