@@ -9,12 +9,18 @@ get_human_readable_time_from_seconds() {
   local hours=$((diff / 3600))
   local minutes=$(((diff % 3600) / 60))
   local seconds=$((diff % 60))
-  echo "${hours} hours ${minutes} minutes and ${seconds} seconds..."
+  echo "${hours} hours ${minutes} minutes and ${seconds} seconds"
 }
 
 get_human_readable_time_from_epoch_seconds() {
   local epoch_seconds="${1}"
   echo $(date -d "@${epoch_seconds}" +"%b %-d %Y, %H:%M")
+}
+
+get_wait_time() {
+    local target=${1}
+    local now=$(date +%s)
+    echo $(( target - now ))
 }
 
 wait_until_send_time() {
@@ -31,9 +37,12 @@ wait_until_send_time() {
   echo "Next restart will be: $(get_human_readable_time_from_epoch_seconds ${target})"
 
   # Wait until it's time to send again
-  local diff=$(( target - now ))
-  echo "See you in $(get_human_readable_time_from_seconds ${diff})..."
-  sleep $diff;
+  local diff=$(get_wait_time ${target})
+  while [ "${diff}" -ge 0 ]; do
+    echo "Waiting another $(get_human_readable_time_from_seconds ${diff}) to send..."
+    sleep 60;
+    diff=$(get_wait_time ${target})
+  done
 }
 
 #### BEGIN MAIN EXECUTION
