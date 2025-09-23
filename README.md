@@ -25,7 +25,6 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
 - [Troubleshooting](#troubleshooting)
   - [Invalid NYT Cookies](#invalid-nyt-cookies)
   - [Could Not Send the Message](#could-not-send-the-message)
-  - [](#)
 - [Donations](#donations)
 
 
@@ -298,8 +297,6 @@ Typical reasons you see this:
 2. You accidentally used the main password rather than the App Password.
    - Make sure you [enabled 2FA and created your App Password](#4-create-a-throwaway-gmail-account), then filled in the `.env` file with *the app password*.
    - Make sure to keep the single quotes. For example, `CROSSWORD_SENDER_EMAIL_APP_PASSWORD='super secret password here'`.
-
-### 
 
 ## Donations
 This tool has been a lot of fun to build. I love maintaining it, but I drink a lot of coffee to do so.
