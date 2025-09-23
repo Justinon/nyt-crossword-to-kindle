@@ -11,7 +11,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
   - [1. Install Docker](#1-install-docker)
   - [2. Download the nyt-crossword-to-kindle Program](#2-download-the-nyt-crossword-to-kindle-program)
   - [3. Get Your NYTimes Login Cookies](#3-get-your-nytimes-login-cookies)
-  - [4. (Optional, but Highly Recommended) Use a Throwaway Email](#4-optional-but-highly-recommended-use-a-throwaway-email)
+  - [4. Create a Throwaway Gmail Account](#4-create-a-throwaway-gmail-account)
   - [5. Allow Emails to Your Kindle](#5-allow-emails-to-your-kindle)
   - [6. Fill in the `.env` File](#6-fill-in-the-env-file)
   - [7. Test It Out](#7-test-it-out)
@@ -24,6 +24,7 @@ Starting as a basic, thrown together project for my wife, I wanted to make this 
 - [Customization Examples](#customization-examples)
 - [Troubleshooting](#troubleshooting)
   - [Invalid NYT Cookies](#invalid-nyt-cookies)
+  - [Could Not Send the Message](#could-not-send-the-message)
 - [Donations](#donations)
 
 
@@ -61,7 +62,11 @@ This program uses something called *Docker*. While a massive oversimplification,
    1. [Windows](https://helpx.adobe.com/x-productkb/global/show-hidden-files-folders-extensions.html)
    2. On MacOS, press `CMD + Shift + .` in your Finder window
    3. On Linux...you know what you're doing
-4. Inside that folder:
+4. Enable viewing file extensions.
+   1. [Windows](https://support.microsoft.com/en-us/windows/common-file-name-extensions-in-windows-da4a4430-8e76-89c5-59f7-1cdbbc75cb01#id0ebf=windows_11)
+   2. [MacOS](https://support.apple.com/guide/mac-help/show-or-hide-filename-extensions-on-mac-mchlp2304/mac)
+   3. On Linux...should be visible by default...but you know what you're doing
+5. Inside that folder:
    - Find the file called `.env.example`
    - Make a copy of it and rename the copy to `.env`
 
@@ -72,14 +77,15 @@ This program needs proof that *you* have a New York Times subscription. That pro
 2. Log into [nytimes.com](https://nytimes.com).
 3. Use the extension to export your cookies in “Netscape” format.
 4. Save that file as `cookies.nyt.txt` and move it into the same folder where your `.env` file and `downloads` folder is.
-   - (Optional) Compare it to the example file `cookies.sample.txt`—just to make sure it looks similar.
+   - Make sure you enabled viewing hidden file extensions so you don't accidentally make the name something like `cookies.nyt.txt.txt` (note the redundant `.txt.txt`).
+   - Compare it to the example file `cookies.sample.txt`—just to make sure it looks similar.
 
-### 4. (Optional, but Highly Recommended) Use a Throwaway Email
-This program will send crosswords to your Kindle by email. That means it needs your email password. **For safety, don’t use your main email.**
+### 4. Create a Throwaway Gmail Account
+This program will send crosswords to your Kindle by email. That means it needs your email password. **For safety, don’t use your main email. Use this email only for this program.**
 
-- Create a new “burner” email just for this.
+- Create a new “burner” Gmail account
   - Example: `myburneremail123@gmail.com`
-- You’ll use this address only for sending puzzles.
+- Enable [2FA and create an App Password](https://support.google.com/mail/answer/185833?hl=en). You will supply the *app password* to the `nyt-crossword-to-kindle` program, *not* the main password.
 
 ### 5. Allow Emails to Your Kindle
 Amazon requires you to give permission for who can send things to your Kindle.
@@ -97,7 +103,7 @@ This file is where you tell the program about your setup.
 2. Replace the following `REQUIRED` values (**after the `=`**) with your real information:
    * **`CROSSWORD_SENDER_EMAIL_ADDRESS_PREFIX`** → The part of your burner email before the `@`.
    * **`CROSSWORD_SENDER_EMAIL_ADDRESS_DOMAIN`** → The part of your burner email after the `@`.
-   * **`CROSSWORD_SENDER_EMAIL_APP_PASSWORD`** → The password for your burner email.
+   * **`CROSSWORD_SENDER_EMAIL_APP_PASSWORD`** → The App Password for your burner email.
    * **`KINDLE_EMAIL_ADDRESS`** → The special email address Amazon gave you for your Kindle
       ([find it here](https://www.amazon.com/sendtokindle/email)).
 3. Make sure to save the file.
@@ -107,8 +113,8 @@ Let's make sure it's all configured correctly:
 
 1. Open a terminal window (on MacOS or Linux) or a PowerShell window (on Windows).
 2. Use the terminal or PowerShell to navigate to the folder where you unzipped the code repository. For example:
-   - On MacOS or Linux, type `cd ~/Downloads/nyt-crossword-to-kindle` (replace with your actual folder path).
-   - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle` (replace with your actual folder path).
+   - On MacOS or Linux, type `cd ~/Downloads/nyt-crossword-to-kindle-main` (replace with your actual folder path).
+   - On Windows, type `cd C:\Users\YourName\Downloads\nyt-crossword-to-kindle-main` (replace with your actual folder path).
 3. Once you are in the correct folder, type the following command and press Enter:
      ```
      docker compose up -d --build --force-recreate
@@ -272,7 +278,25 @@ crossword-sender  | Checking NYT cookies are present...
 crossword-sender  | ERROR: Invalid NYT cookies. Try obtaining your cookies again. Exiting.
 ```
 
-If you see this, then you misconfigured your `cookies.nyt.txt` file during setup. Try following [this step exactly again](#3-get-your-nytimes-login-cookies).
+If you see this, then you misconfigured your `cookies.nyt.txt` file during setup. Typical issues:
+1. The cookies file contents aren't similar to what you see in `cookies.sample.txt`. You may need to re-generate the NYT cookies file.
+2. The cookies file name isn't `cookies.nyt.txt`. It's possible you aren't seeing the file extension, and your cookies file *actually* got named something like `cookies.nyt.txt.txt` (note the redundant `.txt.txt`).
+3. The cookies file was put in the wrong location. Make sure it lives next to the `Dockerfile`, `cookies.sample.txt`, `.env` file, etc.
+
+Try following [this step exactly again](#3-get-your-nytimes-login-cookies).
+
+### Could Not Send the Message
+You are probably seeing something like this:
+```
+SASL authentication failed
+Could not send the message.
+```
+
+Typical reasons you see this:
+1. Your `.env` file has a typo. Did you make sure to split `myburneremail123@gmail.com` into `myburneremail123` and `gmail.com`?
+2. You accidentally used the main password rather than the App Password.
+   - Make sure you [enabled 2FA and created your App Password](#4-create-a-throwaway-gmail-account), then filled in the `.env` file with *the app password*.
+   - Make sure to keep the single quotes. For example, `CROSSWORD_SENDER_EMAIL_APP_PASSWORD='super secret password here'`.
 
 ## Donations
 This tool has been a lot of fun to build. I love maintaining it, but I drink a lot of coffee to do so.
