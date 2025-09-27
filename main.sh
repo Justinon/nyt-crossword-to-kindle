@@ -48,7 +48,7 @@ wait_until_send_time() {
 #### BEGIN MAIN EXECUTION
 
 # Initial download
-. ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
+${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
 
 # Daily crossword sending
 while true; do
@@ -59,5 +59,5 @@ while true; do
 
   # Source .env to detect any changes to command-line arguments
   source ${SCRIPT_PATH}/.env
-  . ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
+  ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
 done
