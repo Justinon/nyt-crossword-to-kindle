@@ -47,17 +47,19 @@ wait_until_send_time() {
 
 #### BEGIN MAIN EXECUTION
 
-# Initial download
+# Initial downloads
 ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
+${SCRIPT_PATH}/download-cbc-news.sh
 
-# Daily crossword sending
+# Daily crossword and news sending
 while true; do
   RESTART_TIME="${CROSSWORD_DAILY_SEND_TIME:-08:00}"
-  echo "Will send your crossword every day at: ${RESTART_TIME} ${TZ} time"
+  echo "Will send your crossword and news every day at: ${RESTART_TIME} ${TZ} time"
 
   wait_until_send_time "${RESTART_TIME}"
 
   # Source .env to detect any changes to command-line arguments
   source ${SCRIPT_PATH}/.env
   ${SCRIPT_PATH}/download-crossword.sh ${CROSSWORD_COMMAND_LINE_ARGUMENTS}
+  ${SCRIPT_PATH}/download-cbc-news.sh
 done
