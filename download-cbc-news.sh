@@ -39,37 +39,12 @@ function verify_env_vars() {
 }
 
 function fetch_and_process_rss() {
-    local html_content="<html><head><meta charset=\"UTF-8\"><title>CBC News Headlines</title></head><body><h1>CBC News Headlines - $(date +'%Y-%m-%d')</h1>"
-    
+    echo "Fetching and processing RSS feeds using Python script..."
     source /opt/venv/bin/activate
-
-    for url in "${CBC_RSS_URLS[@]}"; do
-        echo "Fetching RSS feed from ${url}"
-        local rss_feed
-        rss_feed=$(curl --silent --show-error -H "Accept-Charset: utf-8" "${url}")
-
-        echo "Processing RSS feed..."
-        local feed_title
-        feed_title=$(echo "${rss_feed}" | xmlstarlet sel -t -m "/rss/channel/title" -v . -n)
-        html_content+="<h2>${feed_title}</h2><ul>"
-
-        local count=0
-        # Use xmlstarlet to parse the RSS feed and extract titles, links, and descriptions
-        while IFS= read -r title && IFS= read -r link && IFS= read -r description; do
-            if [ "$count" -ge 9 ]; then
-                break
-            fi
-            count=$((count + 1))
-            # Decode HTML entities in description
-            description=$(python3 -c "import html, sys; print(html.unescape(sys.argv[1]))" "${description}")
-            html_content+="<li><a href='${link}'>${title}</a><p>${description}</p></li>"
-        done < <(echo "${rss_feed}" | xmlstarlet sel -t -m "//item" -v "title" -n -v "link" -n -v "description" -n)
-        
-        html_content+="</ul>"
-    done
-    deactivate
-
-    html_content+="</body></html>"
+    
+    # The process_rss.py script will output the full initial HTML.
+    local html_content
+    html_content=$(python3 /crosswords/process_rss.py "${CBC_RSS_URLS[@]}")
 
     # Write HTML content to a dedicated temporary directory
     local temp_html_file=$(mktemp /crosswords/tmp/cbc-news-XXXXXX.html)
@@ -93,8 +68,15 @@ function fetch_and_process_rss() {
     rm -f "${temp_html_file}"
 
     echo "Converting news to PDF..."
-    source /opt/venv/bin/activate
-    echo "${html_content}" | weasyprint - "${OUTPUT_PDF_PATH}"
+    # Write the final HTML to a new temporary file to be passed to weasyprint
+    local final_html_file=$(mktemp /crosswords/tmp/final-cbc-news-XXXXXX.html)
+    echo "${html_content}" > "${final_html_file}"
+
+    weasyprint "${final_html_file}" "${OUTPUT_PDF_PATH}"
+    
+    # Clean up the final HTML file
+    rm -f "${final_html_file}"
+
     deactivate
     echo "Successfully created PDF: ${OUTPUT_PDF_PATH}"
 }
